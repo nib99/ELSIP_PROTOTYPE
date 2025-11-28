@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: elsip
+      POSTGRES_USER: elsip
+      POSTGRES_PASSWORD: elsip123
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  api:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=postgres://elsip:elsip123@db:5432/elsip
+      - OPENAI_KEY=sk-proj-elsip-demo
+      - POLYGON_RPC=${POLYGON_RPC}
+    volumes:
+      - ./backend:/usr/src/app
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+    volumes:
+      - ./frontend:/usr/src/app
+
+  ai:
+    build: ./ai
+    ports:
+      - "5005:5005"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
