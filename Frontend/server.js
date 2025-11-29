@@ -1,5 +1,13 @@
-const express = require('express');
+const express = require("express");
+const path = require("path");
 const app = express();
-app.use(express.static('public'));
-app.get('/health', (req,res)=>res.json({status:'ok'}));
-app.listen(8080, ()=>console.log('Frontend served on 8080'));
+
+const PORT = process.env.PORT || 10000;
+
+app.use(express.static(path.join(__dirname, "dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
+
+app.listen(PORT, () => console.log(`Frontend running on ${PORT}`));
