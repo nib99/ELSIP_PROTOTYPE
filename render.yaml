@@ -28,9 +28,10 @@ services:
         value: production
 
   - name: elsip-frontend
-    type: static
+    type: web
+    env: static
     buildCommand: "npm install && npm run build"
-    staticPublishPath: "dist"
+    staticPublishPath: dist
     autoDeploy: true
     envVars:
       - key: VITE_API_URL
