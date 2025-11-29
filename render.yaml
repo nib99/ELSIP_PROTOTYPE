@@ -77,10 +77,6 @@ services:
       - key: VITE_ADMIN_API_URL
         value: https://elsip-admin-api.onrender.com
 
-    headers:
-      - path: /*
-        name: Access-Control-Allow-Origin
-        value: "*"
 
 databases:
   # ============================
