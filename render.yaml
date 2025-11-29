@@ -1,90 +1,43 @@
 services:
-  # ============================
-  # BACKEND API (Worker Services)
-  # ============================
-  - type: web
-    name: elsip-backend
+  - name: elsip-backend
+    type: web
     env: node
+    plan: free
     buildCommand: "npm install"
     startCommand: "npm start"
-    plan: starter
-    region: frankfurt
-    branch: main
-    rootDir: backend
     autoDeploy: true
     envVars:
-      - key: DATABASE_URL
+      - key: MONGO_URI
         fromDatabase:
           name: elsip-db
           property: connectionString
-      - key: JWT_SECRET
-        generateValue: true
-      - key: PORT
-        value: 5000
+      - key: NODE_ENV
+        value: production
 
-    healthCheckPath: /api/health
-    headers:
-      - path: /*
-        name: Access-Control-Allow-Origin
-        value: "*"
-
-  # ============================
-  # ADMIN BACKEND API
-  # ============================
-  - type: web
-    name: elsip-admin-api
+  - name: elsip-admin
+    type: web
     env: node
-    buildCommand: "npm install"
-    startCommand: "npm start"
-    plan: starter
-    region: frankfurt
-    branch: main
-    rootDir: admin-backend
-    autoDeploy: true
-    envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: elsip-db
-          property: connectionString
-      - key: JWT_SECRET
-        generateValue: true
-      - key: PORT
-        value: 7000
-
-    healthCheckPath: /admin/health
-    headers:
-      - path: /*
-        name: Access-Control-Allow-Origin
-        value: "*"
-
-  # ============================
-  # FRONTEND (React / Vite)
-  # ============================
-  - type: web
-    name: elsip-frontend
-    env: static
+    plan: free
     buildCommand: "npm install && npm run build"
-    staticPublishPath: dist
-    plan: starter
-    region: frankfurt
-    branch: main
-    rootDir: frontend
+    startCommand: "npm start"
     autoDeploy: true
+    envVars:
+      - key: API_URL
+        value: https://elsip-backend.onrender.com
+      - key: NODE_ENV
+        value: production
 
+  - name: elsip-frontend
+    type: static
+    buildCommand: "npm install && npm run build"
+    staticPublishPath: "dist"
+    autoDeploy: true
     envVars:
       - key: VITE_API_URL
         value: https://elsip-backend.onrender.com
-      - key: VITE_ADMIN_API_URL
-        value: https://elsip-admin-api.onrender.com
-
 
 databases:
-  # ============================
-  # POSTGRESQL DATABASE
-  # ============================
   - name: elsip-db
-    region: frankfurt
-    plan: starter
+    plan: free
     databaseName: elsip
-    user: elsip
-    
+    user: elsip_user
