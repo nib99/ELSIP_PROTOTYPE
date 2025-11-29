@@ -1,0 +1,94 @@
+services:
+  # ============================
+  # BACKEND API (Worker Services)
+  # ============================
+  - type: web
+    name: elsip-backend
+    env: node
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    plan: starter
+    region: frankfurt
+    branch: main
+    rootDir: backend
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: elsip-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 5000
+
+    healthCheckPath: /api/health
+    headers:
+      - path: /*
+        name: Access-Control-Allow-Origin
+        value: "*"
+
+  # ============================
+  # ADMIN BACKEND API
+  # ============================
+  - type: web
+    name: elsip-admin-api
+    env: node
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    plan: starter
+    region: frankfurt
+    branch: main
+    rootDir: admin-backend
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: elsip-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 7000
+
+    healthCheckPath: /admin/health
+    headers:
+      - path: /*
+        name: Access-Control-Allow-Origin
+        value: "*"
+
+  # ============================
+  # FRONTEND (React / Vite)
+  # ============================
+  - type: web
+    name: elsip-frontend
+    env: static
+    buildCommand: "npm install && npm run build"
+    staticPublishPath: dist
+    plan: starter
+    region: frankfurt
+    branch: main
+    rootDir: frontend
+    autoDeploy: true
+
+    envVars:
+      - key: VITE_API_URL
+        value: https://elsip-backend.onrender.com
+      - key: VITE_ADMIN_API_URL
+        value: https://elsip-admin-api.onrender.com
+
+    headers:
+      - path: /*
+        name: Access-Control-Allow-Origin
+        value: "*"
+
+databases:
+  # ============================
+  # POSTGRESQL DATABASE
+  # ============================
+  - name: elsip-db
+    region: frankfurt
+    plan: starter
+    databaseName: elsip
+    user: elsip
+    version: 15
