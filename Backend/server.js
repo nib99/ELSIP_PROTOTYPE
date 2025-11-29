@@ -10,9 +10,12 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL || 'postgres://elsip:elsip123@db:5432/elsip' });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgres://elsip:elsip123@db:5432/elsip',
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+});
 
-app.get('/health', (req, res) => res.json({status: 'ok'}));
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 // Register worker
 app.post('/api/register', async (req, res) => {
@@ -31,7 +34,7 @@ app.post('/api/match-jobs', async (req, res) => {
   res.json({ matches: jobs.rows });
 });
 
-// Generate QR Skills ID (mock: creates QR data and returns PNG data URL)
+// Generate QR Skills ID
 app.post('/api/skills-id', async (req, res) => {
   const { userId, skills } = req.body;
   const payload = `elsip:${userId}:${Date.now()}`;
